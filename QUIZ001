@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨーロッパの自然環境/ヨーロッパ統合の流れ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>ヨーロッパの自然環境/ヨーロッパ統合の流れ</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="text-button" class="answer-button" onclick="openPdf()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "ピレネー山脈からアルプス山脈を経てカルパティア山脈にいたる山脈を境に、北が ___ 地域、南が ___ 帯となっている。", answers: ["安定", "変動"] },
+                { id: 2, text: "アルプス山脈の北側を ___ 川が北海に流れ込み、南側を ___ 川が黒海に注いでいる。これらは国際河川である。", answers: ["ライン", "ドナウ"] },
+                { id: 3, text: "ヨーロッパ北部では ___ 帯が広がり、フィヨルドや氷河期の影響を受けた地形が見られ、 ___ 林が広がる。", answers: ["亜寒", "針葉樹"] },
+                { id: 4, text: "北大西洋海流と ___ の影響を東西に広く受け、 ___ 性気候が内陸の東経20度付近までおよぶ。", answers: ["偏西風", "西岸海洋性"] },
+                { id: 5, text: "夏は高温乾燥し、冬は比較的降水が多い ___ 性気候が広がる。", answers: ["地中海"] },
+                { id: 6, text: "ヨーロッパは共通の文化的基盤として ___ 教を共有し、科学技術の進歩で近代化を推進し、経済発展を遂げた。", answers: ["キリスト"] },
+                { id: 7, text: "言語はインド・ヨーロッパ語族の ___ 系、 ___ 系、 ___ 系が主に話されている。", answers: ["ゲルマン", "ラテン", "スラブ"] },
+                { id: 8, text: "北西部では ___ 系言語が話され、宗教は主に ___ である。", answers: ["ゲルマン", "プロテスタント"] },
+                { id: 9, text: "ラテン語系言語が多く話され、主な宗教は ___ である。", answers: ["カトリック"] },
+                { id: 10, text: "スラブ語系言語が主に話され、宗教は ___ 会が多い。", answers: ["正教"] },
+                { id: 11, text: "紛争のもととなる石炭資源と鉄鋼業を共同管理するために設立された ___（略称: ECSC）は、経済統合の初期段階となった。", answers: ["ヨーロッパ石炭鉄鋼共同体"] },
+                { id: 12, text: "1993年に ___ 条約によって、EU（ヨーロッパ連合）が発足し、人、モノ、サービス、資本の域内移動が自由化された。", answers: ["マーストリヒト"] },
+                { id: 13, text: "EUは ___ 統合を進め、共通の安全保障政策を目指した。", answers: ["通貨"] },
+                { id: 14, text: "1995年の ___ 協定により、協定加盟国の国境管理が廃止され、域内の人の移動が容易になった。", answers: ["シェンゲン"] },
+                { id: 15, text: "フィヨルドや氷河期による氷食地形は、主に ___ 部に見られる。", answers: ["北"] },
+                { id: 16, text: "___ 海流と偏西風の影響を受けた中央部では、___ 性気候が広がっている。", answers: ["北大西洋", "西岸海洋性"] },
+                { id: 17, text: "___ 性気候が広がる南部では、夏は高温乾燥し、冬には比較的降水が多い。", answers: ["地中海"] },
+                { id: 18, text: "ヨーロッパ統合の背景には、共通の ___ 教とその精神的支柱がある。", answers: ["キリスト"] },
+                { id: 19, text: "インド・ヨーロッパ語族の中で、___ 系、ラテン系、スラブ系の言語が広く話されている。", answers: ["ゲルマン"] },
+                { id: 20, text: "1967年には ___（略称: EC）となり、域内関税の撤廃と域外関税の共通化を実現した。", answers: ["ヨーロッパ共同体"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function openPdf() {
+            window.open('https://drive.google.com/file/d/1ZuYZAV7C7b2pRUHWxdZZlgI1GeW9Eprs/view?usp=drive_link', '_blank');
+        }
+    </script>
+</body>
+</html>
