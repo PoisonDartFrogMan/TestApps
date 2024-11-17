@@ -48,6 +48,7 @@
     <div id="question-container" class="question"></div>
     <div id="input-container"></div>
     <button id="answer-button" class="answer-button">解答</button>
+    <button id="text-button" class="answer-button" onclick="openPdf()">テキスト</button>
     <div id="feedback"></div>
     <div id="result-container"></div>
     <button id="next-button" class="next-button" style="display:none;">次へ</button>
@@ -151,6 +152,10 @@
             // 初期表示
             displayQuestion();
         });
+    
+        function openPdf() {
+            window.open('https://drive.google.com/file/d/1ZuYZAV7C7b2pRUHWxdZZlgI1GeW9Eprs/view?usp=drive_link', '_blank');
+        }
     </script>
 </body>
 </html>
