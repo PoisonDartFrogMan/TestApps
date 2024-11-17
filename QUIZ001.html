@@ -21,7 +21,7 @@
             font-size: 1em;
             padding: 10px;
         }
-        .answer-button, .next-button {
+        .answer-button, .next-button, .index-button {
             margin-top: 10px;
             font-size: 1em;
             padding: 10px;
@@ -36,7 +36,7 @@
                 font-size: 1em;
                 padding: 10px;
             }
-            .answer-button, .next-button {
+            .answer-button, .next-button, .index-button {
                 font-size: 0.9em;
                 padding: 8px;
             }
@@ -52,6 +52,7 @@
     <div id="feedback"></div>
     <div id="result-container"></div>
     <button id="next-button" class="next-button" style="display:none;">次へ</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -155,6 +156,10 @@
     
         function openPdf() {
             window.open('https://drive.google.com/file/d/1ZuYZAV7C7b2pRUHWxdZZlgI1GeW9Eprs/view?usp=drive_link', '_blank');
+        }
+
+        function goToIndex() {
+            window.location.href = 'index.html';
         }
     </script>
 </body>
