@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨーロッパ ② ~EUの工業と課題~</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>ヨーロッパ ② ~EUの工業と課題~</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "1970年代以降、ヨーロッパの工業は ___ の低下に直面した。", answers: ["国際競争力"] },
+                { id: 2, text: "エネルギー転換が進み、石炭から ___ への移行が行われた。", answers: ["石油"] },
+                { id: 3, text: "かつての重工業の中心地には、日米の ___ 工場が進出してきた。", answers: ["自動車組立"] },
+                { id: 4, text: "原油価格の高騰と製造業の ___ 化が進行した。", answers: ["軽薄短小"] },
+                { id: 5, text: "日本や ___ との競争が激化した。", answers: ["NIES"] },
+                { id: 6, text: "重工業三角地帯は北フランス、イングランド北東部、ドイツ ___ 部を指す。", answers: ["西"] },
+                { id: 7, text: "先端産業分野では ___ や日本に後れをとった。", answers: ["アメリカ"] },
+                { id: 8, text: "21世紀に入り、___ やICT分野で技術革新が活発化した。", answers: ["バイオテクノロジー"] },
+                { id: 9, text: "EU諸国では脱工業化が進み、特に ___ 関連産業がギリシャやスペインで発展した。", answers: ["観光"] },
+                { id: 10, text: "エストニアでは ___ 業が発展し、国際競争力を高めた。", answers: ["情報サービス"] },
+                { id: 11, text: "大都市に集中するのは ___ 業であり、資本や人口も集中する傾向がある。", answers: ["サービス"] },
+                { id: 12, text: "サービス業の発展は ___ 格差を生む要因となった。", answers: ["地域"] },
+                { id: 13, text: "東欧革命後、2004年に ___ の東方拡大が行われた。", answers: ["EU"] },
+                { id: 14, text: "EUの東方拡大により、加盟国の増加で文化面の ___ が大きくなった。", answers: ["違い"] },
+                { id: 15, text: "EU全体の ___ の維持が課題となっている。", answers: ["結束"] },
+                { id: 16, text: "産業の ___ 化はEU内で懸念されている問題である。", answers: ["空洞"] },
+                { id: 17, text: "第二次世界大戦後、東欧諸国は ___ の主導で社会主義国となった。", answers: ["ソ連"] },
+                { id: 18, text: "リスボン条約により ___ の創設などが行われた。", answers: ["EU大統領"] },
+                { id: 19, text: "欧州議会の権限が ___ され、政治的統合が図られた。", answers: ["強化"] },
+                { id: 20, text: "EUが抱える課題には ___ 賃金の格差がある。", answers: ["最低"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1i3NQdEd4ectY9kjwiUf2BWPT42AYQzm6/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
