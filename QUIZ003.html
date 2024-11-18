@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨーロッパ ③ ~EUの工業と課題~</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>ヨーロッパ ③ ~EUの工業と課題~</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "2009年に、財政赤字が原因で国債が暴落し、___の価値が急落した。", answers: ["ユーロ"] },
+                { id: 2, text: "2009年に財政危機を起こした国は___である。", answers: ["ギリシャ"] },
+                { id: 3, text: "2014年、EUは___を導入し、全ての銀行を監督する強い権限を持つ機関を設置した。", answers: ["単一監督メカニズム"] },
+                { id: 4, text: "第二次世界大戦後、西ヨーロッパの国々は___を受け入れて労働力不足を補った。", answers: ["移民"] },
+                { id: 5, text: "1993年の___によって、EU域内の人の移動が自由化された。", answers: ["マーストリヒト条約"] },
+                { id: 6, text: "2010年代には、___からの難民が急増した。", answers: ["中東"] },
+                { id: 7, text: "難民が急増した背景には___の紛争やイスラーム原理主義の台頭があった。", answers: ["シリア"] },
+                { id: 8, text: "イギリスを構成する4つの地域は、イングランド、ウェールズ、スコットランド、___である。", answers: ["北アイルランド"] },
+                { id: 9, text: "2016年6月の国民投票で、___%が離脱を支持した。", answers: ["51.9"] },
+                { id: 10, text: "イギリス国内で___派は主にイングランドやウェールズで支持されていた。", answers: ["離脱"] },
+                { id: 11, text: "スコットランドと北アイルランドでは___派が多かった。", answers: ["残留"] },
+                { id: 12, text: "離脱派の意見の一つには、___を抑制し、国境を再び強化する必要があるというものがあった。", answers: ["移民"] },
+                { id: 13, text: "離脱派は、EUのルールに縛られず___政策を行いたいと考えていた。", answers: ["経済的独立"] },
+                { id: 14, text: "イギリスでの移民の例として、___からの移民に関する問題があった。", answers: ["ポーランド"] },
+                { id: 15, text: "残留派は___に移動し、勉強や仕事ができる環境を維持したいと考えていた。", answers: ["自由"] },
+                { id: 16, text: "残留派は、___加盟による経済の安定と貿易の恩恵を守りたかった。", answers: ["EU"] },
+                { id: 17, text: "残留派の中で___世代は生まれた時からEU加盟下で育ったため、残留を支持する声が多かった。", answers: ["若者"] },
+                { id: 18, text: "イギリスのEU離脱によって___の減少による税収の低下が懸念された。", answers: ["移民"] },
+                { id: 19, text: "イギリスのEU離脱後、___への投資減少が予測された。", answers: ["イギリス"] },
+                { id: 20, text: "スコットランドはEU離脱によって___の可能性が高まるとされている。", answers: ["独立"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1H7-wezLbyagdLsEQiATV8c9iKBMCFDPU/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
