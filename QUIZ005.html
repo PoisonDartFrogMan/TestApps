@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>都市の機能と都市システム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>都市の発展と機能</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "古代の___は政治機能の強い政治都市として発達した。", answers: ["都市"] },
+                { id: 2, text: "12世紀頃からヨーロッパや日本で___が発達し、農山漁村の物資を取引する市場町や宿場町が形成された。", answers: ["商業都市"] },
+                { id: 3, text: "宗教の聖地や寺社周辺には___が発達し、巡礼者や参拝者が対象の商業施設や宿泊施設が発展した。", answers: ["宗教都市"] },
+                { id: 4, text: "18世紀の産業革命以降、___や鉱業都市が形成された。", answers: ["工業都市"] },
+                { id: 5, text: "余暇活動が盛んになると___も成立した。", answers: ["観光保養都市"] },
+                { id: 6, text: "現代は複数の___を持つ複合都市も多い。", answers: ["都市の機能"] },
+                { id: 7, text: "都市の___とは、都市周辺地域の住民にも商品やサービスを供給する機能である。", answers: ["中心地機能"] },
+                { id: 8, text: "大都市は中央官庁の組織や企業の本社など___が集中している。", answers: ["中枢管理機能"] },
+                { id: 9, text: "階層的なネットワークで結ばれた都市間の相互関係を___という。", answers: ["都市システム"] },
+                { id: 10, text: "イギリスやフランスでは都市構造が___型となっている。", answers: ["一極集中"] },
+                { id: 11, text: "ドイツやアメリカでは都市構造が___型である。", answers: ["多極分散型"] },
+                { id: 12, text: "世界規模の都市システムの中核となる都市は___と呼ばれる。", answers: ["世界都市"] },
+                { id: 13, text: "世界中の都市にアクセスしやすい空港を___と呼ぶ。", answers: ["ハブ空港"] },
+                { id: 14, text: "教育や研究の中心となり、大学や研究機関が集まる都市は___と呼ばれる。", answers: ["学術都市"] },
+                { id: 15, text: "国や地域の政治・行政の中心として政府機関が集中している都市は___と呼ばれる。", answers: ["政治都市"] },
+                { id: 16, text: "宗教的な聖地として巡礼や宗教的儀式が行われる都市は___と呼ばれる。", answers: ["宗教都市"] },
+                { id: 17, text: "観光資源や自然環境を活かし、保養や観光を目的とする都市は___と呼ばれる。", answers: ["保養都市（観光保護都市）"] },
+                { id: 18, text: "___は多くの教育機関や研究施設が集まり、学生や研究者が多く集う都市である。", answers: ["学術都市"] },
+                { id: 19, text: "___は国家の政策決定や外交が行われる中心地である。", answers: ["政治都市"] },
+                { id: 20, text: "世界都市にアクセスしやすい空港は、都市の発展において重要な___である。", answers: ["ハブ空港"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1erU1TJA-9zOnna2qW96D3vkg5S9zglwA/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
