@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>村落の機能と形態</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>村落と地域振興</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "村落は家屋の形態で___と散村に分けられる。", answers: ["集村"] },
+                { id: 2, text: "集村には___や列村がある。", answers: ["塊村"] },
+                { id: 3, text: "___条件で成立する村落には塊村や環濠集落がある。", answers: ["自然"] },
+                { id: 4, text: "外敵からの防御が目的の___や環濠集落も集村に該当する。", answers: ["円村"] },
+                { id: 5, text: "商業的な___と農業中心の路村がある。", answers: ["街村"] },
+                { id: 6, text: "___は日本の台地の新田集落やヨーロッパの林地村に見られる。", answers: ["路村"] },
+                { id: 7, text: "経営規模の大きい散村の例として、北アメリカの___による開拓地がある。", answers: ["タウンシップ制"] },
+                { id: 8, text: "散村には___が見られ、特に富山県の砺波平野で知られている。", answers: ["散居村"] },
+                { id: 9, text: "地域振興への取り組みとして、地域資源を活用した___が行われている。", answers: ["地域振興"] },
+                { id: 10, text: "___活動として農業体験やグリーンツーリズムが行われている。", answers: ["観光"] },
+                { id: 11, text: "村落でも第二次産業、___次産業の比率が高まっている。", answers: ["第三"] },
+                { id: 12, text: "日本では都市から農山漁村に移住する若者もいるが、___が進む地域が多い。", answers: ["過疎化"] },
+                { id: 13, text: "___は農家が周囲の土地を開拓して経営しやすい形態である。", answers: ["散村"] },
+                { id: 14, text: "___は外敵からの防御を目的とした集村形態である。", answers: ["円村"] },
+                { id: 15, text: "路村は___中心の村落形態である。", answers: ["農業"] },
+                { id: 16, text: "___村はスラブ社会で見られることが多い。", answers: ["円村"] },
+                { id: 17, text: "富山県の散居村は家屋が___に囲まれている。", answers: ["屋敷林"] },
+                { id: 18, text: "集村は___条件によって形成されることが多い。", answers: ["社会"] },
+                { id: 19, text: "___は商業が発展した村落形態である。", answers: ["街村"] },
+                { id: 20, text: "グリーンツーリズムは___の一環として農業体験が行われる活動である。", answers: ["観光活動"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1W-LyX4f0Bn3zrM0PEZubvzU2qjoq10Ce/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
