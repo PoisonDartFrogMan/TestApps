@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>民族・領土問題 ①~世界の民族問題~</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>民族・領土問題 ①~世界の民族問題~</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "世界各地で多くの（_____）が発生している。", answers: ["民族問題"] },
+                { id: 2, text: "近代国家は（_____）を理想とし、（_____）が生まれる。", answers: ["国民国家"] },
+                { id: 3, text: "（_____）で地域境界線をめぐる問題が発生している。", answers: ["ベルギー"] },
+                { id: 4, text: "ベルギーの（_____）使用者とフランス語使用者の間で対立がある。", answers: ["オランダ語"] },
+                { id: 5, text: "（_____）のイスラエル建国の問題は、国際的な紛争の原因となっている。", answers: ["パレスチナ"] },
+                { id: 6, text: "キリスト教とイスラムの対立は、（_____）の問題に関わっている。", answers: ["ユーゴスラビア"] },
+                { id: 7, text: "北アイルランドでは（_____）系住民とプロテスタント系住民の紛争が続いていた。", answers: ["カトリック"] },
+                { id: 8, text: "北アイルランド紛争では、（_____）とカトリックが主な対立構造である。", answers: ["プロテスタント"] },
+                { id: 9, text: "発展途上国で多くの（_____）が起きており、先進国も無関係ではない。", answers: ["民族紛争"] },
+                { id: 10, text: "（_____）のダイヤモンドは不法な採掘が行われ、国際問題に発展している。", answers: ["コンゴ民主共和国"] },
+                { id: 11, text: "アンゴラや（_____）でのレアメタルの不法な採掘は、民族紛争を長引かせる原因の一つである。", answers: ["シエラレオネ"] },
+                { id: 12, text: "民族紛争は、多数派（マジョリティ）が少数派（マイノリティ）に（_____）を強いることで発生することがある。", answers: ["同化"] },
+                { id: 13, text: "ニュージーランドでは、（_____）がイギリス系移住者とほぼ対等な地位を獲得している。", answers: ["マオリ"] },
+                { id: 14, text: "（_____）は複数の民族の文化が対等に併存するが、文化的摩擦への対応に苦慮する場合がある。", answers: ["多文化主義"] },
+                { id: 15, text: "一国に複数の民族が存在する場合、（_____）と多文化主義の間で政策が分かれることがある。", answers: ["同化主義"] },
+                { id: 16, text: "先進国も関与する不法な国際貿易が、（_____）の問題を長引かせている。", answers: ["民族紛争"] },
+                { id: 17, text: "ビアフラ内戦は（_____）におけるナイジェリアの一部地域で発生した内戦である。", answers: ["ナイジェリア"] },
+                { id: 18, text: "ビアフラ内戦の主な原因は（_____）と地域の石油資源の分配を巡る対立であった。", answers: ["民族的対立"] },
+                { id: 19, text: "ルワンダ内戦では、多数派（_____）と少数派ツチ族の間で激しい対立があった。", answers: ["フツ"] },
+                { id: 20, text: "ルワンダ内戦の背景には、植民地支配による（_____）の固定化があった。", answers: ["民族階級化"] },
+                { id: 21, text: "ビアフラ内戦では（_____）の独立を求める動きが見られた。", answers: ["ビアフラ共和国"] },
+                { id: 22, text: "ルワンダ内戦は（_____）年代に発生し、多くの犠牲者を出した。", answers: ["1990"] },
+                { id: 23, text: "北アイルランド紛争は主にカトリック系住民と（_____）系住民の対立が原因である。", answers: ["プロテスタント"] },
+                { id: 24, text: "クルド人問題は（_____）やイラン、シリア、イラクにまたがる民族の独立を巡る問題である。", answers: ["トルコ"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1RaTlwwB83uX0KmbWvlG3r1ZGXR-mRUQi/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
