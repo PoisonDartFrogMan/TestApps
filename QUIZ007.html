@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>都市の内部構造と先進国の居住・都市問題</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            font-size: 1em;
+            padding: 10px;
+        }
+        .answer-button, .next-button, .index-button {
+            margin-top: 10px;
+            font-size: 1em;
+            padding: 10px;
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 1em;
+                padding: 10px;
+            }
+            .answer-button, .next-button, .index-button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>都市の内部構造と先進国の居住・都市問題</h1>
+    <div id="question-container" class="question"></div>
+    <div id="input-container"></div>
+    <button id="answer-button" class="answer-button">解答</button>
+    <button id="index-button" class="index-button" onclick="goToIndex()">目次に戻る</button>
+    <button id="text-button" class="answer-button" onclick="openText()">テキスト</button>
+    <div id="feedback"></div>
+    <div id="result-container"></div>
+    <button id="next-button" class="next-button" style="display:none;">次へ</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = [
+                { id: 1, text: "大都市の中心部は___（中央業務地区）と呼ばれ、商業や行政機能が集まっている。", answers: ["CBD"] },
+                { id: 2, text: "都心部の___では昼間人口が多く、夜間人口が少ない。", answers: ["中心業務地区"] },
+                { id: 3, text: "大都市では都心部の外側に___と呼ばれる古い市街地が存在する。", answers: ["インナーシティ"] },
+                { id: 4, text: "旧市街地の外縁部には___が発達し、都市の業務機能の一部を分散させる。", answers: ["副都心"] },
+                { id: 5, text: "都市が拡大すると郊外にも都市的地域が広がり、これを___という。", answers: ["都市圏"] },
+                { id: 6, text: "___は、中心都市と通勤などで関わりが深い都市的な広がりを持つ地域を指す。", answers: ["大都市圏"] },
+                { id: 7, text: "大都市圏は段階的に発展し、最初の段階は___である。", answers: ["都市化"] },
+                { id: 8, text: "都市化が進むと都市の人口が増加し、次に___が進む。", answers: ["郊外化"] },
+                { id: 9, text: "郊外化が進むと都市中心部の人口が減少し、___の段階に入る。", answers: ["反都市化"] },
+                { id: 10, text: "都市の再生が進むと___の段階に移行し、中心部の人口が再び増加する。", answers: ["再都市化"] },
+                { id: 11, text: "インナーシティの人口が郊外化して起こる問題を___という。", answers: ["インナーシティ問題"] },
+                { id: 12, text: "アメリカの大都市郊外に見られる新しい商業・オフィス地区を___という。", answers: ["エッジシティ"] },
+                { id: 13, text: "郊外でみられる、全体を塀やフェンスで囲い、ゲートによって管理された住宅地を___という。", answers: ["ゲーテッドコミュニティ"] },
+                { id: 14, text: "人種や民族による住み分けを指す用語は___である。", answers: ["セグリゲーション"] },
+                { id: 15, text: "都市再開発によって高所得層が流入し、旧市街地が高級住宅地化する現象を___という。", answers: ["ジェントリフィケーション"] },
+                { id: 16, text: "都市の規模を小さくし、歩行者が移動しやすい環境を目指す都市計画を___という。", answers: ["コンパクトシティ構想"] },
+                { id: 17, text: "都市の臨海部で、倉庫や港湾を新しい施設に再開発することを___という。", answers: ["ウォーターフロント開発"] },
+                { id: 18, text: "郊外化によって発生する問題の一つに、都心部の人口減少と___がある。", answers: ["反都市化"] },
+                { id: 19, text: "都市の昼間人口と夜間人口の差が大きいのは、主に___の地域である。", answers: ["中心業務地区"] },
+                { id: 20, text: "中心都市と周辺都市のつながりを強く持ち、広がる都市的地域は___と呼ばれる。", answers: ["都市圏"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let correctCount = 0;
+
+            function displayQuestion() {
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById("question-container");
+                const inputContainer = document.getElementById("input-container");
+
+                // 表示初期化
+                questionContainer.innerHTML = questionData.text;
+                inputContainer.innerHTML = "";
+
+                // 複数の入力フィールドを生成
+                const answerCount = questionData.answers.length;
+                for (let i = 0; i < answerCount; i++) {
+                    const inputField = document.createElement("input");
+                    inputField.type = "text";
+                    inputField.id = `input-${i}`;
+                    inputField.classList.add("input-field");
+                    inputContainer.appendChild(inputField);
+                    inputContainer.appendChild(document.createElement("br"));
+                }
+
+                document.getElementById("feedback").innerHTML = "";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            function checkAnswer() {
+                const questionData = questions[currentQuestionIndex];
+                let isCorrect = true;
+
+                // 各入力フィールドの解答チェック
+                for (let i = 0; i < questionData.answers.length; i++) {
+                    const userAnswer = document.getElementById(`input-${i}`).value.trim();
+                    if (userAnswer !== questionData.answers[i]) {
+                        isCorrect = false;
+                    }
+                }
+
+                const feedback = document.getElementById("feedback");
+                if (isCorrect) {
+                    feedback.innerHTML = "正解！";
+                    correctCount++;
+                } else {
+                    feedback.innerHTML = "不正解。";
+                }
+
+                document.getElementById("next-button").style.display = "inline";
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }
+
+            function displayResult() {
+                const resultContainer = document.getElementById("result-container");
+                resultContainer.innerHTML = `結果: ${correctCount} / ${questions.length}`;
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("input-container").style.display = "none";
+                document.getElementById("answer-button").style.display = "none";
+                document.getElementById("next-button").style.display = "none";
+            }
+
+            document.getElementById("answer-button").addEventListener("click", checkAnswer);
+            document.getElementById("next-button").addEventListener("click", nextQuestion);
+
+            // 初期表示
+            displayQuestion();
+        });
+    
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function openText() {
+            window.open('https://drive.google.com/file/d/1vY3A_Jyp2pe5FOuVZlRfzP3wIC6caotP/view?usp=share_link');
+        }
+    </script>
+</body>
+</html>
